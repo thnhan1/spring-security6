@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: simplejwt
+  h2:
+    console:
+      enabled: true
+  datasource:
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:C:/Users/huunh/IdeaProjects/simplejwt/filedb;AUTO_SERVER=TRUE
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
+jwtSecret: 598051A1E38B97051E88ED6304F0E29D243EF3DD94D24D0A4821437E867E8D2E
+jwtExpiration: 360000
+
+
