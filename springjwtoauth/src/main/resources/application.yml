@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: springjwtoauth
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+            scope: ["openid", "profile", "email"]
+
+jwtSecret: 598051A1E38B97051E88ED6304F0E29D243EF3DD94D24D0A4821437E867E8D2E
+jwtExpiration: 3600000
