@@ -24,13 +24,22 @@ public class CustomUserDetailsService implements UserDetailsService {
         return CustomUserDetails.build(user);
     }
 
-    public User loadOrCreateOAuthUser(String email) {
+    public User loadOrCreateOAuthUser(String email, String providerName, String providerId) {
         return userRepository.findByEmail(email)
+                .map(existing -> {
+                    if (existing.getProviderId() == null) {
+                        existing.setProviderId(providerId);
+                        existing.setProviderName(providerName);
+                        return userRepository.save(existing);
+                    }
+                    return existing;
+                })
                 .orElseGet(() -> {
                     User user = new User();
                     user.setEmail(email);
                     user.setUsername(email);
-                    user.setPassword("");
+                    user.setProviderId(providerId);
+                    user.setProviderName(providerName);
                     return userRepository.save(user);
                 });
     }

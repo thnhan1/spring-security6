@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -35,9 +36,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
         DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
         String email = oauthUser.getAttribute("email");
-        User user = userDetailsService.loadOrCreateOAuthUser(email);
+        String providerName = authToken.getAuthorizedClientRegistrationId();
+        String providerId = oauthUser.getName();
+        User user = userDetailsService.loadOrCreateOAuthUser(email, providerName, providerId);
 
         CustomUserDetails userDetails = CustomUserDetails.build(user);
         Map<String, Object> claims = new HashMap<>();
