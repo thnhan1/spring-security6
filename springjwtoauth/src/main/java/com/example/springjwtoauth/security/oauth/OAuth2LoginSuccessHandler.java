@@ -32,7 +32,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final CustomUserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
 
-
     public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
@@ -58,7 +57,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.setContentType("application/json");
         response.getWriter().write("{\"token\":\"" + token + "\",\"refreshToken\":\"" + refreshToken.getToken() + "\"}");
         response.getWriter().flush();
-*/
+/*
         Cookie accessTokenCookie = new Cookie("accessToken", token);
         accessTokenCookie.setHttpOnly(false);
         accessTokenCookie.setPath("/");
