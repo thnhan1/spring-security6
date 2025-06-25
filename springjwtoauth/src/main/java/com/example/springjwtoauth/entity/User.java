@@ -24,9 +24,9 @@ public class User {
 
     private String email;
 
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserProvider> providers = new HashSet<>();
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

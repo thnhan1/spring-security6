@@ -35,4 +35,8 @@ build/
 *.h2.db
 *.db
 *.log
+data/**
+data
 
+*.properties
+application.properties

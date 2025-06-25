@@ -64,6 +64,7 @@ public class SecurityConfig {
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(List.of("*"));
                     config.setExposedHeaders(List.of("Authorization"));
+
                     config.setMaxAge(3600L);
                     return config;
                 }))
@@ -71,9 +72,12 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/h2-console/**",
+                                "/oauth2/**",
+                                "/login/oauth2/**").permitAll()
                         .anyRequest().authenticated())
-                .oauth2Login(oauth -> oauth.successHandler(successHandler));
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/oauth2/authorization/google").successHandler(successHandler));
 
         http.headers(cfg -> cfg.frameOptions(f -> f.disable()));
         return http.build();
