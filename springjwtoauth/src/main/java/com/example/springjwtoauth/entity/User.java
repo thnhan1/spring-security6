@@ -23,6 +23,12 @@ public class User {
 
     private String email;
 
+    @Column(name = "provider_name")
+    private String providerName;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
