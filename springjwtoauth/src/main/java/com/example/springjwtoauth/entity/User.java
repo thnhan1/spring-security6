@@ -3,6 +3,7 @@ package com.example.springjwtoauth.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -23,11 +24,9 @@ public class User {
 
     private String email;
 
-    @Column(name = "provider_name")
-    private String providerName;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserProvider> providers = new HashSet<>();
 
-    @Column(name = "provider_id")
-    private String providerId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

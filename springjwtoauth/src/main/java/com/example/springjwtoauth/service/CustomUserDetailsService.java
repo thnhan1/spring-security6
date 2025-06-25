@@ -2,7 +2,10 @@ package com.example.springjwtoauth.service;
 
 import com.example.springjwtoauth.entity.Role;
 import com.example.springjwtoauth.entity.User;
-import com.example.springjwtoauth.repository.RoleRepository;
+
+import com.example.springjwtoauth.entity.UserProvider;
+import com.example.springjwtoauth.repository.UserProviderRepository;
+
 import com.example.springjwtoauth.repository.UserRepository;
 import com.example.springjwtoauth.security.CustomUserDetails;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,11 +19,12 @@ import java.util.HashSet;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserProviderRepository userProviderRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
+    public CustomUserDetailsService(UserRepository userRepository, UserProviderRepository userProviderRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.userProviderRepository = userProviderRepository;
+
     }
 
     @Override
@@ -31,25 +35,48 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     public User loadOrCreateOAuthUser(String email, String providerName, String providerId) {
-        return userRepository.findByEmail(email)
-                .map(existing -> {
-                    if (existing.getProviderId() == null) {
-                        existing.setProviderId(providerId);
-                        existing.setProviderName(providerName);
-                        return userRepository.save(existing);
-                    }
-                    return existing;
-                })
-                .orElseGet(() -> {
-                    User user = new User();
-                    user.setEmail(email);
-                    user.setUsername(email);
-                    user.setProviderId(providerId);
-                    HashSet<Role> roles = new HashSet<>();
-                    roles.add(roleRepository.findByName("ROLE_USER").orElseThrow());
-                    user.setRoles(roles);
-                    user.setProviderName(providerName);
-                    return userRepository.save(user);
-                });
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setUsername(email);
+            user = userRepository.save(user);
+        }
+
+        boolean exists = user.getProviders().stream()
+                .anyMatch(p -> providerName.equals(p.getProviderName()) && providerId.equals(p.getProviderId()));
+
+        if (!exists) {
+            UserProvider provider = new UserProvider();
+            provider.setProviderName(providerName);
+            provider.setProviderId(providerId);
+            provider.setUser(user);
+            user.getProviders().add(provider);
+            userProviderRepository.save(provider);
+        }
+        return user;
+// =======
+//         return userRepository.findByEmail(email)
+//                 .map(existing -> {
+//                     if (existing.getProviderId() == null) {
+//                         existing.setProviderId(providerId);
+//                         existing.setProviderName(providerName);
+//                         return userRepository.save(existing);
+//                     }
+//                     return existing;
+//                 })
+//                 .orElseGet(() -> {
+//                     User user = new User();
+//                     user.setEmail(email);
+//                     user.setUsername(email);
+//                     user.setProviderId(providerId);
+//                     HashSet<Role> roles = new HashSet<>();
+//                     roles.add(roleRepository.findByName("ROLE_USER").orElseThrow());
+//                     user.setRoles(roles);
+//                     user.setProviderName(providerName);
+//                     return userRepository.save(user);
+//                 });
+// >>>>>>> main
     }
+}
 }

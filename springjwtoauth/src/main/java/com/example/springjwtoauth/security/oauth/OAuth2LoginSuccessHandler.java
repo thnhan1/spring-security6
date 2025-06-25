@@ -31,13 +31,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
-    private final RoleRepository roleRepository;
 
-    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService, RoleRepository roleRepository) {
+
+    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.refreshTokenService = refreshTokenService;
-        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -56,6 +55,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String token = jwtService.generateToken(claims, userDetails.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
+        response.setContentType("application/json");
+        response.getWriter().write("{\"token\":\"" + token + "\",\"refreshToken\":\"" + refreshToken.getToken() + "\"}");
+        response.getWriter().flush();
+*/
         Cookie accessTokenCookie = new Cookie("accessToken", token);
         accessTokenCookie.setHttpOnly(false);
         accessTokenCookie.setPath("/");
@@ -67,5 +70,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         response.addCookie(accessTokenCookie);
 
         response.sendRedirect("http://localhost:5173/oauth-success");
+/*
     }
 }
