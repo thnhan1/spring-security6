@@ -4,5 +4,5 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-public record JwtResponse(String token, String username, Collection<? extends GrantedAuthority> roles) {
+public record JwtResponse(String token, String refreshToken, String username, Collection<? extends GrantedAuthority> roles) {
 }
