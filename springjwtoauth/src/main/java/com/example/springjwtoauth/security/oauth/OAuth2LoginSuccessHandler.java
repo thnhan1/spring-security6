@@ -3,6 +3,8 @@ package com.example.springjwtoauth.security.oauth;
 import com.example.springjwtoauth.entity.User;
 import com.example.springjwtoauth.security.CustomUserDetails;
 import com.example.springjwtoauth.service.CustomUserDetailsService;
+import com.example.springjwtoauth.service.RefreshTokenService;
+import com.example.springjwtoauth.entity.RefreshToken;
 import com.example.springjwtoauth.service.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,10 +25,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
 
-    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService) {
+    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -40,9 +44,10 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         claims.put("sub", userDetails.getUsername());
         claims.put("roles", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         String token = jwtService.generateToken(claims, userDetails.getUsername());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
         response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
+        response.getWriter().write("{\"token\":\"" + token + "\",\"refreshToken\":\"" + refreshToken.getToken() + "\"}");
         response.getWriter().flush();
     }
 }
