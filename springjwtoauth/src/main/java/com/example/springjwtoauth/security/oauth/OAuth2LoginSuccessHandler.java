@@ -1,12 +1,15 @@
 package com.example.springjwtoauth.security.oauth;
 
+import com.example.springjwtoauth.entity.Role;
 import com.example.springjwtoauth.entity.User;
+import com.example.springjwtoauth.repository.RoleRepository;
 import com.example.springjwtoauth.security.CustomUserDetails;
 import com.example.springjwtoauth.service.CustomUserDetailsService;
 import com.example.springjwtoauth.service.RefreshTokenService;
 import com.example.springjwtoauth.entity.RefreshToken;
 import com.example.springjwtoauth.service.JwtService;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -27,11 +31,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
+    private final RoleRepository roleRepository;
 
-    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
+    public OAuth2LoginSuccessHandler(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService, RoleRepository roleRepository) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.refreshTokenService = refreshTokenService;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -50,8 +56,16 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String token = jwtService.generateToken(claims, userDetails.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\",\"refreshToken\":\"" + refreshToken.getToken() + "\"}");
-        response.getWriter().flush();
+        Cookie accessTokenCookie = new Cookie("accessToken", token);
+        accessTokenCookie.setHttpOnly(false);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(3600); // 1h
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken.getToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(3600*7*24);
+        response.addCookie(accessTokenCookie);
+
+        response.sendRedirect("http://localhost:5173/oauth-success");
     }
 }
