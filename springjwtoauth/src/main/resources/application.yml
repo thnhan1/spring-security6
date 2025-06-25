@@ -3,7 +3,8 @@ spring:
     name: springjwtoauth
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:file:./data/mydb;DB_CLOSE_ON_EXIT=TRUE;AUTO_SERVER=TRUE
+#    url: jdbc:h2:mem:testdb
     username: sa
     password:
   h2:
@@ -22,8 +23,8 @@ spring:
       client:
         registration:
           google:
-            client-id: google-client-id
-            client-secret: google-client-secret
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: ["openid", "profile", "email"]
 
 jwtSecret: 598051A1E38B97051E88ED6304F0E29D243EF3DD94D24D0A4821437E867E8D2E
